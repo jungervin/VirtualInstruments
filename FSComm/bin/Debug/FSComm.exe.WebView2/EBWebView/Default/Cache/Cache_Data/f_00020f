@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Cessna 172 Panel</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <script type="text/javascript" src="JS/settings.js"></script>
+<script type="text/javascript" src="JS/utils.js"></script>
+<script type="text/javascript" src="JS/paho-mqtt-min.js"></script>
+<script type="text/javascript" src="JS/components_svg.js"></script>
+<script type="text/javascript" src="JS/ATCClient.js"></script>
+<script type="text/javascript" src="JS/FSClient.js"></script> -->
+
+<script data-main="dist/C172_G1000_Panel" src="dist/require.js"></script>
+<link rel="stylesheet" href="css/c172_panel.min.css">
+
+<head>
+    <style>
+        @font-face {
+            font-family: "Roboto-Bold";
+            src: url("Fonts/Roboto-Bold.ttf") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow: hidden;
+            color: whitesmoke;
+            background-color: #1a1d21;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -o-user-select: none;
+
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -o-user-select: none;
+            -khtml-user-select: none;
+
+        }
+
+        svg {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -o-user-select: none;
+            -khtml-user-select: none;
+            pointer-events: none;
+        }
+
+        svg text {
+            pointer-events: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            pointer-events: none;
+            -khtml-user-select: none;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+        }
+
+        svg text::selection {
+            background: none;
+        }
+
+        #ATC {
+            position: absolute;
+            width: 35%; 
+            top: 4px;
+            left: calc(100% - 36%);
+            right: calc(100% - 10px);
+
+
+            bottom: 8px;
+            background-color: #050505;
+            /* visibility: hidden; */
+        }
+
+        .dialogs {
+            height: 40%;
+            overflow-x: hidden;
+        }
+
+        .message {
+            background-color: #050505;
+            color: whitesmoke;
+            padding: 5px;
+            margin: 1px;
+            border: solid 1px whitesmoke;
+
+        }
+
+        .emitter {
+            font-size: 10px;
+        }
+
+        .options {
+            background-color: steelblue;
+            color: whitesmoke;
+            padding: 10px;
+            margin: 1px;
+            cursor: pointer;
+
+        }
+
+        .disabled {
+            background-color: gray;
+            color: whitesmoke;
+            padding: 10px;
+            margin: 1px;
+            cursor: pointer
+        }
+
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: black;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        #RA {
+            position: absolute;
+            left: 20px;
+            top: 10px;
+            margin: 0;
+        }
+
+        #title {
+            position: absolute;
+            left: 20px;
+            top: 10px;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="title">TITLE</div>
+    <div id="RA">
+        <h1 style="font-size: 48px;">RA: <span id="RH"></span> ft</h1>
+    </div>
+    <div id="ATC">
+        <div id="ATCDialogs" class="dialogs"></div>
+        <div id="ATCOptions" style="margin: 10px;  "></div>
+    </div>
+    <!-- <div id="Panel">
+        <object id="svg-panel" data="images/instruments/c172_panel.svg" type="image/svg+xml"></object>
+    </div> -->
+
+    <c172-panel id="C172Panel" image="images/c172_panel.svg" type="image/svg+xml"></c172-panel>
+
+    <script>
+
+
+        window.addEventListener("load", function () {
+
+
+            function start() {
+                require(['C172_G1000_Panel'], function (instr) {
+                    //var tsc = new instr.TSC()
+                    // tsc.update()
+                });
+            }
+            setTimeout(start, 3000)
+        })
+
+        //     //var svg = document.getElementById("svg-panel").contentDocument
+        //     //======================================================================
+        //     // BAT
+        //     //======================================================================
+        //     {
+        //         var bat = new ToggleButton(svg, "bat_off", "bat_on", "bat_tap")
+        //         bat.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_MASTER_BATTERY", 'number', 1)
+        //             //Broker.SetSimVar("K:TOGGLE_MASTER_BATTERY", 'number', 2)
+        //         }
+        //         bat.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("ELECTRICAL MASTER BATTERY:1", "bool"))
+        //         }
+        //         fs.addElement(bat)
+        //     }
+
+        //     //======================================================================
+        //     // STBY BAT
+        //     //======================================================================
+        //     {
+        //         var stby_bat = new ToggleButton(svg, "stby_bat_off", "stby_bat_on", "stby_bat_tap")
+        //         stby_bat.onClicked = function (e) {
+        //             //Broker.SetSimVar("K:TOGGLE_MASTER_BATTERY", 'number', 1)
+        //             SimVar.SetSimVarValue("K:TOGGLE_MASTER_BATTERY", 'number', 2)
+        //         }
+        //         stby_bat.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("ELECTRICAL MASTER BATTERY:2", "bool"))
+        //         }
+        //         fs.addElement(stby_bat)
+        //     }
+
+        //     //======================================================================
+        //     // ALT1
+        //     //======================================================================
+        //     {
+        //         var alt = new ToggleButton(svg, "alt_off", "alt_on", "alt_tap")
+        //         alt.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_ALTERNATOR1", 'number', 1)
+        //         }
+        //         alt.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("GENERAL ENG MASTER ALTERNATOR:1", "bool"))
+        //         }
+        //         fs.addElement(alt)
+        //     }
+
+
+        //     //======================================================================
+        //     // BUS1
+        //     //======================================================================
+        //     {
+        //         var bus1 = new ToggleButton(svg, "bus1_off", "bus1_on", "bus1_tap")
+        //         bus1.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_AVIONICS_MASTER", 'number', 0)
+        //         }
+        //         bus1.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("AVIONICS MASTER SWITCH:1", "bool"))
+        //         }
+        //         fs.addElement(bus1)
+        //     }
+
+        //     //======================================================================
+        //     // BUS2
+        //     //======================================================================
+        //     {
+        //         var bus2 = new ToggleButton(svg, "bus2_off", "bus2_on", "bus2_tap")
+        //         bus2.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_AVIONICS_MASTER", 'number', 0)
+        //         }
+        //         bus2.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("AVIONICS MASTER SWITCH:1", "bool"))
+        //         }
+        //         fs.addElement(bus2)
+        //     }
+
+        //     //======================================================================
+        //     // FUEL PUMP
+        //     //======================================================================
+        //     {
+        //         var fuel_pump = new ToggleButton(svg, "fuel_pump_off", "fuel_pump_on", "fuel_pump_tap")
+        //         fuel_pump.onClicked = function (e) {
+        //             if (this.state == 0) {
+        //                 vJoy.vJoyButton(1, 4, 1)
+        //                 //Broker.SetSimVar("K:FUELSYSTEM_PUMP_SET:1", "number", 1)
+        //                 //this.setState(1)
+        //             } else {
+        //                 vJoy.vJoyButton(1, 4, 0)
+        //                 //Broker.SetSimVar("K:FUELSYSTEM_PUMP_SET:1", "number", 1)
+        //                 //this.setState(0)
+        //             }
+        //             //Broker.SetSimVar("K:PITOT_HEAT_TOGGLE", 'number', 1)
+        //             // Fuel Pump ON {"value": 1, "id":1,"btn":4}
+        //             // Fuel Pump OFF {"value": 0, "id":1,"btn":4}
+
+        //         }
+        //         fuel_pump.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("GENERAL ENG FUEL PUMP SWITCH:1", "bool"))
+        //         }
+        //         fs.addElement(fuel_pump)
+        //     }
+
+        //     //======================================================================
+        //     // PITOT HEAT
+        //     //======================================================================
+        //     {
+        //         var pitot_heat = new ToggleButton(svg, "pitot_heat_off", "pitot_heat_on", "pitot_heat_tap")
+        //         pitot_heat.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:PITOT_HEAT_TOGGLE", 'number', 1)
+        //         }
+        //         pitot_heat.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("PITOT HEAT", "bool"))
+        //         }
+        //         fs.addElement(pitot_heat)
+        //     }
+
+        //     //======================================================================
+        //     // NAV
+        //     //======================================================================
+        //     {
+        //         var nav = new ToggleButton(svg, "nav_off", "nav_on", "nav_tap")
+        //         nav.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_NAV_LIGHTS", 'bool', 0)
+        //             // Broker.SetSimVar("K:PITOT_HEAT_TOGGLE", 'number', 1)
+        //         }
+        //         nav.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("LIGHT NAV", "bool"))
+        //         }
+        //         fs.addElement(nav)
+        //     }
+        //     //======================================================================
+        //     // STROBE
+        //     //======================================================================
+        //     {
+        //         var strobe = new ToggleButton(svg, "strobe_off", "strobe_on", "strobe_tap")
+        //         strobe.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:STROBES_TOGGLE", 'bool', 0)
+        //         }
+        //         strobe.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("LIGHT STROBE", "bool"))
+        //         }
+        //         fs.addElement(strobe)
+        //     }
+        //     //======================================================================
+        //     // LAND
+        //     //======================================================================
+        //     {
+        //         var land = new ToggleButton(svg, "landing_off", "landing_on", "landing_tap")
+        //         land.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:LANDING_LIGHTS_TOGGLE", 'bool', 0)
+        //         }
+        //         land.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("LIGHT LANDING", "bool"))
+        //         }
+        //         fs.addElement(land)
+        //     }
+
+        //     //======================================================================
+        //     // TAXI
+        //     //======================================================================
+        //     {
+        //         var taxi = new ToggleButton(svg, "taxi_off", "taxi_on", "taxi_tap")
+        //         taxi.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_TAXI_LIGHTS", 'bool', 0)
+        //         }
+        //         taxi.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("LIGHT TAXI", "bool"))
+        //         }
+        //         fs.addElement(taxi)
+        //     }
+
+        //     //======================================================================
+        //     // BEACON
+        //     //======================================================================
+        //     {
+        //         var beacon = new ToggleButton(svg, "beacon_off", "beacon_on", "beacon_tap")
+        //         beacon.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:TOGGLE_BEACON_LIGHTS", 'bool', 0)
+        //         }
+        //         beacon.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("LIGHT BEACON", "bool"))
+        //         }
+        //         fs.addElement(beacon)
+        //     }
+
+        //     //======================================================================
+        //     // CABIN LIGHT
+        //     //======================================================================
+        //     {
+        //         var cabin_light = new ToggleButton(svg, "cabin_light_off", "cabin_light_on", "cabin_light_tap")
+        //         cabin_light.onClicked = function (e) {
+        //             if (this.state == 0) {
+        //                 //MQTTClient.SetvJoyButton(vJoy, 5, 1)
+        //                 this.setState(1)
+        //             } else {
+        //                 //MQTTClient.SetvJoyButton(vJoy, 5, 0)
+        //                 this.setState(0)
+        //             }
+        //         }
+        //         cabin_light.update = function () {
+        //             //this.setState(Broker.GetSimVarValue("LIGHT LANDING", "bool"))
+        //         }
+        //         fs.addElement(cabin_light)
+        //     }
+
+        //     //======================================================================
+        //     // FUEL SELECTOR
+        //     //======================================================================
+        //     {
+        //         // 0: OFF
+        //         // 2: LEFT
+        //         // 3: RIGHT
+        //         var fuelSelector = new MultiState(svg, ["fuel_selector_left", "fuel_selector_both", "fuel_selector_right"], "fuel_selector_tap_left", "fuel_selector_tap_right")
+        //         fuelSelector.onClicked = function (e) {
+        //             var s = getMinMaxValue(0, 2, this.state - e)
+        //             if (this.state != s) {
+        //                 switch (s) {
+        //                     case 1: SimVar.SetSimVarValue("K:FUEL_SELECTOR_SET", "number", 1)
+        //                         break
+        //                     case 2: SimVar.SetSimVarValue("K:FUEL_SELECTOR_SET", "number", 3)
+        //                         break
+        //                     default: SimVar.SetSimVarValue("K:FUEL_SELECTOR_SET", "number", 0)
+        //                         break
+        //                 }
+        //             }
+        //         }
+        //         fuelSelector.update = function () {
+        //             switch (SimVar.GetSimVarValue("FUEL TANK SELECTOR:1", "enum")) {
+        //                 case 2: this.setState(0)
+        //                     break
+        //                 case 3: this.setState(2)
+        //                     break
+        //                 default: this.setState(1)
+        //                     break
+        //             }
+        //         }
+        //         fs.addElement(fuelSelector)
+        //     }
+
+        //     // Cabin Lights ON {"value":1, "id":1,"btn":5}
+        //     // Cabin Lights OFF {"value":0, "id":1,"btn":5}
+
+
+        //     //======================================================================
+        //     // PARKING BREAKE
+        //     //======================================================================
+        //     {
+        //         var parking_brake = new ToggleButton(svg, "parking_brake_off", "parking_brake_on", "parking_brake_tap")
+        //         parking_brake.onClicked = function (e) {
+        //             SimVar.SetSimVarValue("K:PARKING_BRAKES", "number", 0)
+        //         }
+        //         parking_brake.update = function () {
+        //             this.setState(SimVar.GetSimVarValue("BRAKE PARKING INDICATOR", "bool"))
+        //         }
+        //         fs.addElement(parking_brake)
+        //     }
+
+        //     // ========================================================================================
+        //     // FLAPS
+        //     // ========================================================================================
+        //     {
+        //         var flapsControl = new FlapsControl(svg, "flaps_bbox", "flaps_indicator", "flaps_up", "flaps_dn")
+        //         flapsControl.onClicked = function (e) {
+        //             if (e == 1) {
+        //                 SimVar.SetSimVarValue("K:FLAPS_DECR", "number", 1)
+        //             } else {
+        //                 SimVar.SetSimVarValue("K:FLAPS_INCR", "number", 1)
+        //             }
+        //         }
+        //         flapsControl.update = function () {
+
+        //             var p = SimVar.GetSimVarValue("FLAPS HANDLE INDEX", "number")
+        //             if (p != undefined) {
+        //                 if (p == 1) {
+        //                     this.setPos(.5)
+        //                 } else if (p == 2) {
+        //                     this.setPos(.75)
+        //                 } else if (p == 3) {
+        //                     this.setPos(1)
+        //                 } else {
+        //                     this.setPos(0)
+        //                 }
+        //             }
+        //         }
+        //         fs.addElement(flapsControl)
+        //     }
+
+        //     // ========================================================================================
+        //     // ELEVATOR TRIM INDICATOR
+        //     // ========================================================================================
+        //     {
+        //         var etrim = new ElevatorTrimIndicator(svg, "elevator_trim_box", "elevator_trim_indicator")
+        //         etrim.update = function () {
+        //             var p = getMinMaxValue(-0.8, 0.8, SimVar.GetSimVarValue("ELEVATOR TRIM INDICATOR", "number") * 2)
+        //             if (p) {
+        //                 this.setPos(-p)
+        //             }
+        //         }
+        //         fs.addElement(etrim)
+        //     }
+
+
+        //     // ========================================================================================
+        //     // MIXTURE INDICATOR
+        //     // ========================================================================================
+        //     {
+        //         var mixture = new AnalogIndicator(svg, "mixture_box", "mixture_indicator")
+        //         mixture.update = function () {
+        //             var p = SimVar.GetSimVarValue("GENERAL ENG MIXTURE LEVER POSITION:1", "number")
+        //             if (p != undefined) {
+        //                 this.setPos(-1 + p)
+        //             }
+        //         }
+        //         fs.addElement(mixture)
+        //     }
+
+        //     // ========================================================================================
+        //     // THROTTLE INDICATOR
+        //     // ========================================================================================
+        //     {
+        //         var throttle = new AnalogIndicator(svg, "throttle_box", "throttle_indicator")
+        //         throttle.update = function () {
+        //             var p = SimVar.GetSimVarValue("GENERAL ENG THROTTLE LEVER POSITION:1", "number")
+        //             if (p != undefined) {
+        //                 this.setPos(-1 + p)
+        //             }
+        //         }
+        //         fs.addElement(throttle)
+        //     }
+
+
+
+        //     var title = document.getElementById("title")
+        //     title.update = function () {
+        //         var v = SimVar.GetSimVarValue("title", "string")
+        //         title.innerHTML = v ? v : "NaN"
+
+        //     }
+        //     fs.addElement(title)
+
+
+
+        //     var rh = document.getElementById("RH")
+        //     rh.update = function () {
+        //         var v = SimVar.GetSimVarValue("RADIO HEIGHT", "feet")
+        //         rh.innerHTML = v != undefined ? v.toFixed(0) : "NaN"
+        //     }
+        //     fs.addElement(rh)
+
+
+        //     let atc = new ATCClient(fs)
+
+
+        //     fs.messagePostProcess = function (message) {
+        //         if (message.destinationName == "sim/atc") {
+        //             atc.messageArrived(message)
+        //         }
+        //     }
+
+        //     //fs.addMessageProcessor(atc)
+
+        //     fs.start()
+
+        // })
+    </script>
+</body>
+
+</html>

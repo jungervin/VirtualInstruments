@@ -1,0 +1,1 @@
+[{"InstrumentName":"Instrument","PosX":1338,"PosY":1528,"Width":529,"Height":425,"FrameVisible":true,"IsFullScreen":false,"IsHandleValid":true}]

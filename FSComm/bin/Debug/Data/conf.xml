@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppSettingsViewModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MQTTServerAddress>127.0.0.1</MQTTServerAddress>
+  <MQTTServerPort>1883</MQTTServerPort>
+  <MQTTServerUsername>user</MQTTServerUsername>
+  <MQTTServerPassword>titok</MQTTServerPassword>
+  <HTTPServerPort>5000</HTTPServerPort>
+  <HTTPServerDocumentRootPath>C:\MSFS2020\Community\ikarosz-mqttpanel\www</HTTPServerDocumentRootPath>
+  <DatabaseFile />
+  <Display1Name />
+  <Display2Name />
+  <IgnoredSerialPorts>COM1,COM2</IgnoredSerialPorts>
+  <FSFolder>C:\Program Files\WindowsApps\Microsoft.FlightSimulator_1.31.18.0_x64__8wekyb3d8bbwe</FSFolder>
+  <FSContentsFolder>C:\MSFS2020</FSContentsFolder>
+  <LastProfileFile>W:\Fejlesztes\Repules\Github\VirtualInstruments\FSComm\bin\Debug\default.profile</LastProfileFile>
+</AppSettingsViewModel>

@@ -1,0 +1,2 @@
+﻿xcopy "$(ProjectDir)vJoyInterface.dll" "." /Y
+xcopy "$(ProjectDir)vJoyInterfaceWrap.dll" "." /Y

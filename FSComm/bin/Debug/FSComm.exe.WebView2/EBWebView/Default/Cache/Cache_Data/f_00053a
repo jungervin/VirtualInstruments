@@ -1,0 +1,400 @@
+define(["require", "exports", "./simvar", "./svg", "./utils"], function (require, exports, simvar_1, svg_1, utils_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.GaugeTempPress = exports.GaugeVacAmp = exports.GaugeFuelFlow = exports.GaugeFuel = exports.GaugeTachometer = exports.GaugeNDB = exports.GaugeTurnCoordinator = exports.GaugeAttitude = exports.GaugeVOR2 = exports.GaugeVOR1 = exports.GaugeVario = exports.GaugeAltimeter = exports.GaugeHeading = exports.GaugeAirSpeed = void 0;
+    class GaugeAirSpeed extends svg_1.SVGImage {
+        constructor() {
+            super();
+            console.log("airspeed");
+        }
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.background = this.getElementById("background");
+            this.needle = this.getElementById("needle");
+            this.transform = this.needle.getAttribute("transform") ? this.needle.getAttribute("transform") + " " : "";
+            this.initialized = true;
+        }
+        rotate(deg) {
+            let bbox = this.needle.getBBox();
+            this.needle.setAttribute("transform", this.transform + "rotate(" + deg + " " + (bbox.x + bbox.width / 2) + " " + (bbox.y + bbox.height / 2) + ")");
+        }
+        update() {
+            if (this.initialized) {
+                var deg = 0;
+                var speed = simvar_1.SimVar.GetSimVarValue("AIRSPEED INDICATED", "knots");
+                if (speed > 220) {
+                    speed = 220;
+                }
+                else if (speed < 5) {
+                    speed = 0;
+                }
+                if (speed >= 160) {
+                    deg = 270 + (speed - 160);
+                }
+                else if (speed >= 70) {
+                    deg = 90 + (speed - 70) * 2;
+                }
+                else if (speed >= 40) {
+                    deg = 36 + (speed - 40) * 1.8;
+                }
+                else {
+                    deg = speed / 40 * 36;
+                }
+                this.rotate(deg);
+            }
+        }
+    }
+    exports.GaugeAirSpeed = GaugeAirSpeed;
+    customElements.define('gauge-airspeed', GaugeAirSpeed);
+    class GaugeHeading extends svg_1.SVGImage {
+        constructor() {
+            super();
+            console.log("airspeed");
+        }
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.heading_bug = this.getElementById("heading_bug");
+            this.transform_bug = this.heading_bug.getAttribute("transform") ? this.heading_bug.getAttribute("transform") + " " : "";
+            this.compass = this.getElementById("compass");
+            this.transform_compass = this.compass.getAttribute("transform") ? this.compass.getAttribute("transform") + " " : "";
+            this.rotSYNC = new svg_1.SVGRotary(this, "rotSYNC", "tapSYNC", undefined);
+            this.rotHDG = new svg_1.SVGRotary(this, "rotHDG", "tapHDG", undefined);
+        }
+        setHeading(deg) {
+            let bbox = this.heading_bug.getBBox();
+            this.heading_bug.setAttribute("transform", this.transform_bug + "rotate(" + deg + " " + (bbox.x + bbox.width / 2) + " " + (bbox.y + bbox.height / 2) + ")");
+        }
+        setCompass(deg) {
+            let bbox = this.compass.getBBox();
+            this.compass.setAttribute("transform", this.transform_compass + "rotate(" + deg + " " + (bbox.x + bbox.width / 2) + " " + (bbox.y + bbox.height / 2) + ")");
+        }
+        update() {
+            var hi = simvar_1.SimVar.GetSimVarValue("HEADING INDICATOR", "degrees");
+            var gyro = simvar_1.SimVar.GetSimVarValue("AUTOPILOT HEADING LOCK DIR", "degrees");
+            this.setCompass(-hi);
+            this.setHeading(-hi + gyro);
+        }
+    }
+    exports.GaugeHeading = GaugeHeading;
+    customElements.define('gauge-heading', GaugeHeading);
+    class GaugeAltimeter extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.background = this.getElementById("background");
+            this.needle100 = this.getElementById("feet100");
+            this.transform_needle100 = this.needle100.getAttribute("transform") ? this.needle100.getAttribute("transform") + " " : "";
+            this.needle1000 = this.getElementById("feet1000");
+            this.transform_needle1000 = this.needle1000.getAttribute("transform") ? this.needle1000.getAttribute("transform") + " " : "";
+            this.needle10000 = this.getElementById("feet10000");
+            this.transform_needle10000 = this.needle10000.getAttribute("transform") ? this.needle10000.getAttribute("transform") + " " : "";
+            this.layerHg = this.getElementById("layerhg");
+            this.transform_inHg = this.layerHg.getAttribute("transform") ? this.layerHg.getAttribute("transform") + " " : "";
+            this.rotALT = new svg_1.SVGRotary(this, "rotALT", "tapALT", undefined);
+            this.initialized = true;
+        }
+        setAltimeter(alt) {
+            let bbox = this.background.getBBox();
+            var alt100 = alt / 100 * 36.0;
+            var alt1000 = alt / 1000 * 36.0;
+            var alt10000 = alt / 10000 * 36.0;
+            this.needle100.setAttribute("transform", this.transform_needle100 + "rotate(" + alt100 + " " + (bbox.width / 2) + " " + (bbox.height / 2) + ")");
+            this.needle1000.setAttribute("transform", this.transform_needle100 + "rotate(" + alt1000 + " " + (bbox.width / 2) + " " + (bbox.height / 2) + ")");
+            this.needle10000.setAttribute("transform", this.transform_needle1000 + "rotate(" + alt10000 + " " + (bbox.width / 2) + " " + (bbox.height / 2) + ")");
+        }
+        setHg(hg) {
+            let bbox = this.background.getBBox();
+            hg = Math.min(Math.max(0, hg - 27.1), 5.9);
+            var deg = hg * -60.0;
+            this.layerHg.setAttribute("transform", this.transform_inHg + "rotate(" + deg + " " + (bbox.width / 2) + " " + (bbox.height / 2) + ")");
+        }
+        update() {
+            if (this.initialized) {
+                var alt = simvar_1.SimVar.GetSimVarValue("INDICATED ALTITUDE", "feet");
+                this.setAltimeter(alt);
+                var hg = simvar_1.SimVar.GetSimVarValue("KOHLSMAN SETTING HG", "inHg");
+                this.setHg(hg);
+            }
+        }
+    }
+    exports.GaugeAltimeter = GaugeAltimeter;
+    customElements.define('gauge-altimeter', GaugeAltimeter);
+    class GaugeVario extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.background = this.getElementById("background");
+            this.needle = this.getElementById("layerNeedle");
+            this.transform = this.needle.getAttribute("transform") ? this.needle.getAttribute("transform") + " " : "";
+            this.initialized = true;
+        }
+        setVs(vs) {
+            {
+                let bbox = this.background.getBBox();
+                var deg = vs / 2000 * 164;
+                if (deg > 170) {
+                    deg = 170;
+                }
+                else if (deg < -170) {
+                    deg = -170;
+                }
+                this.needle.setAttribute("transform", this.transform + "rotate(" + deg + " " + (bbox.x + bbox.width / 2) + " " + (bbox.y + bbox.height / 2) + ")");
+            }
+        }
+        update() {
+            if (this.initialized) {
+                var vs = simvar_1.SimVar.GetSimVarValue("VERTICAL SPEED", "feet per minute");
+                this.setVs(vs);
+            }
+        }
+    }
+    exports.GaugeVario = GaugeVario;
+    customElements.define('gauge-vario', GaugeVario);
+    class GaugeVOR1 extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.initialized = true;
+            this.compass = this.getElementById("compass");
+            this.compassTransform = this.compass.getAttribute("transform") ? this.compass.getAttribute("transform") + " " : "";
+            this.flagFrom = new svg_1.SVGElem(this, "flagFROM");
+            this.flagTo = new svg_1.SVGElem(this, "flagTO");
+            this.flagNAV = new svg_1.SVGElem(this, "flagNAV");
+            this.flagGS = new svg_1.SVGElem(this, "flagGS");
+            this.needleNAV = new svg_1.SVGElem(this, "needleNAV");
+            this.needleGS = new svg_1.SVGElem(this, "needleGS");
+            this.rotOBS = new svg_1.SVGRotary(this, "gOBS", "tapOBS", undefined);
+        }
+        setCompass(deg) {
+            let bbox = this.compass.getBBox();
+            this.compass.setAttribute("transform", this.compassTransform + "rotate(" + deg + " " + (bbox.x + bbox.width / 2) + " " + (bbox.y + bbox.height / 2) + ")");
+        }
+        setOBS(deg) {
+            let bbox = this.compass.getBBox();
+            this.compass.setAttribute("transform", this.compassTransform + "rotate(" + Math.round(deg) + " " + (bbox.x + bbox.width / 2) + " " + (bbox.y + bbox.height / 2) + ")");
+        }
+        setFrom(visible) {
+            if (visible) {
+                this.flagFrom.show();
+            }
+            else {
+                this.flagFrom.hide();
+            }
+        }
+        setTo(visible) {
+            if (visible) {
+                this.flagTo.show();
+            }
+            else {
+                this.flagTo.hide();
+            }
+        }
+        setGS(visible) {
+            if (visible) {
+                this.flagGS.show();
+            }
+            else {
+                this.flagGS.hide();
+            }
+        }
+        setNAV(visible) {
+            if (visible) {
+                this.flagNAV.show();
+            }
+            else {
+                this.flagNAV.hide();
+            }
+        }
+        setNAVNeedle(pos) {
+            pos = pos / 127 * 70;
+            this.needleNAV.moveTo(pos, 0);
+        }
+        setGSNeedle(pos) {
+            pos = pos / 127 * 70;
+            this.needleGS.moveTo(pos, 0);
+        }
+        update() {
+            var obs1 = Number(simvar_1.SimVar.GetSimVarValue("NAV OBS:1", "degrees"));
+            this.setCompass(-obs1);
+            var toFrom = simvar_1.SimVar.GetSimVarValue("NAV TOFROM:1", "enum");
+            this.setFrom(toFrom == 1);
+            this.setTo(toFrom == 2);
+            this.setNAV(!Boolean(simvar_1.SimVar.GetSimVarValue("NAV HAS NAV:1", "boolean")));
+            this.setGS(!Boolean(simvar_1.SimVar.GetSimVarValue("NAV GS FLAG:1", "boolean")));
+            this.setNAVNeedle(simvar_1.SimVar.GetSimVarValue("NAV CDI:1", "number"));
+            this.setGSNeedle(simvar_1.SimVar.GetSimVarValue("NAV GSI:1", "number"));
+        }
+    }
+    exports.GaugeVOR1 = GaugeVOR1;
+    customElements.define('gauge-vor1', GaugeVOR1);
+    class GaugeVOR2 extends GaugeVOR1 {
+        update() {
+            var obs1 = Number(simvar_1.SimVar.GetSimVarValue("NAV OBS:2", "degrees"));
+            this.setCompass(-obs1);
+            var toFrom = simvar_1.SimVar.GetSimVarValue("NAV TOFROM:2", "enum");
+            this.setFrom(toFrom == 1);
+            this.setTo(toFrom == 2);
+            this.setNAV(!Boolean(simvar_1.SimVar.GetSimVarValue("NAV HAS NAV:2", "boolean")));
+            this.setGS(!Boolean(simvar_1.SimVar.GetSimVarValue("NAV GS FLAG:2", "boolean")));
+            this.setNAVNeedle(simvar_1.SimVar.GetSimVarValue("NAV CDI:2", "number"));
+            this.setGSNeedle(simvar_1.SimVar.GetSimVarValue("NAV GSI:2", "number"));
+        }
+    }
+    exports.GaugeVOR2 = GaugeVOR2;
+    customElements.define('gauge-vor2', GaugeVOR2);
+    class GaugeAttitude extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.bank = new svg_1.SVGElem(this, "bank");
+            this.pitch = new svg_1.SVGElem(this, "pitch");
+            this.initialized = true;
+        }
+        update() {
+            var bank = simvar_1.SimVar.GetSimVarValue("ATTITUDE INDICATOR BANK DEGREES", "degrees");
+            var pitch = simvar_1.SimVar.GetSimVarValue("ATTITUDE INDICATOR PITCH DEGREES", "degrees");
+            var bars = simvar_1.SimVar.GetSimVarValue("ATTITUDE BARS POSITION", "percent");
+            this.bank.rotateCenter(bank);
+            this.pitch.transform(bank, 0, 0, 0, -pitch * 2.2);
+        }
+    }
+    exports.GaugeAttitude = GaugeAttitude;
+    customElements.define('gauge-attitude', GaugeAttitude);
+    class GaugeTurnCoordinator extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.ball = new svg_1.SVGElem(this, "ball");
+            this.airplane = new svg_1.SVGElem(this, "airplane");
+            this.initialized = true;
+        }
+        update() {
+            var ball = simvar_1.SimVar.GetSimVarValue("TURN COORDINATOR BALL", "position");
+            var airplane = simvar_1.SimVar.GetSimVarValue("TURN INDICATOR RATE", "degrees");
+            this.airplane.rotateCenter(airplane * 6);
+            this.ball.rotateXY(ball * -2, 0, -400);
+        }
+    }
+    exports.GaugeTurnCoordinator = GaugeTurnCoordinator;
+    customElements.define('gauge-turn-coordinator', GaugeTurnCoordinator);
+    class GaugeNDB extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.arrow = new svg_1.SVGElem(this, "arrow");
+            this.compass = new svg_1.SVGElem(this, "compass");
+            this.rotHDG = new svg_1.SVGRotary(this, "rotHDG", "tapHDG", undefined);
+            this.initialized = true;
+        }
+        update() {
+            var hi = simvar_1.SimVar.GetSimVarValue("HEADING INDICATOR", "degrees");
+            hi = simvar_1.SimVar.GetSimVarValue("ADF CARD", "Degrees");
+            var arrow = simvar_1.SimVar.GetSimVarValue("ADF RADIAL:1", "Degrees");
+            this.compass.transform(-hi, 0, 0, 0, 0);
+            this.arrow.transform((arrow + 180 + 90) * 1, 0, 0, 0, 0);
+        }
+    }
+    exports.GaugeNDB = GaugeNDB;
+    customElements.define('gauge-ndb', GaugeNDB);
+    class GaugeTachometer extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.needle = new svg_1.SVGElem(this, "needle");
+            this.initialized = true;
+        }
+        setRPM(rpm) {
+            this.needle.rotateCenter(rpm / 3500 * 252);
+        }
+        setHours(h) {
+        }
+        update() {
+            this.setRPM(simvar_1.SimVar.GetSimVarValue("GENERAL ENG RPM:1", "rpm"));
+            this.setHours(simvar_1.SimVar.GetSimVarValue("GENERAL ENG ELAPSED TIME:1", "hours"));
+        }
+    }
+    exports.GaugeTachometer = GaugeTachometer;
+    customElements.define('gauge-tachometer', GaugeTachometer);
+    class GaugeFuel extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.needleLeft = new svg_1.SVGElem(this, "gNeedleLeft");
+            this.needleRight = new svg_1.SVGElem(this, "gNeedleRight");
+            this.initialized = true;
+        }
+        update() {
+            var l = (simvar_1.SimVar.GetSimVarValue("FUEL TANK LEFT MAIN QUANTITY", "gallons") - 1) / 26.0;
+            var r = (simvar_1.SimVar.GetSimVarValue("FUEL TANK LEFT MAIN QUANTITY", "gallons") - 1) / 26.0;
+            this.needleLeft.transform(-(0, utils_1.getMinMaxValue)(0, 120, l * 120), 0, 0, 0, 0);
+            this.needleRight.transform(-(0, utils_1.getMinMaxValue)(0, 120, r * 120), 0, 0, 0, 0);
+        }
+    }
+    exports.GaugeFuel = GaugeFuel;
+    customElements.define('gauge-fuel', GaugeFuel);
+    class GaugeFuelFlow extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.needleLeft = new svg_1.SVGElem(this, "needleLeft");
+            this.needleRight = new svg_1.SVGElem(this, "needleRight");
+            this.needleYellow = new svg_1.SVGElem(this, "needleYellow");
+            this.needleYellow.transform(-40, 0, 0, 0, 0);
+            this.rotEGT = new svg_1.SVGRotary(this, "rotEGT", "tapEGT", undefined);
+            this.initialized = true;
+        }
+        update() {
+            var egt = simvar_1.SimVar.GetSimVarValue("GENERAL ENG EXHAUST GAS TEMPERATURE:1", "fahrenheit");
+            egt = (egt - 1250) / 450 * 120;
+            this.needleLeft.transform(-(0, utils_1.getMinMaxValue)(0, 120, egt), 0, 0, 0, 0);
+            var ff = simvar_1.SimVar.GetSimVarValue("ENG FUEL FLOW GPH:1", "Gallons per hour");
+            if (ff < 5) {
+                ff = ff / 5 * 10;
+            }
+            else {
+                ff = (ff - 5) / 16.0 * 110 + 10;
+            }
+            this.needleRight.transform(-(0, utils_1.getMinMaxValue)(0, 120, ff), 0, 0, 0, 0);
+            var n = simvar_1.SimVar.GetSimVarValue("L:Eng1_EGTGauge", "number");
+        }
+    }
+    exports.GaugeFuelFlow = GaugeFuelFlow;
+    customElements.define('gauge-fuel-flow', GaugeFuelFlow);
+    class GaugeVacAmp extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.needleLeft = new svg_1.SVGElem(this, "needleLeft");
+            this.needleRight = new svg_1.SVGElem(this, "needleRight");
+            this.initialized = true;
+        }
+        update() {
+            var p = simvar_1.SimVar.GetSimVarValue("SUCTION PRESSURE", "Inches of Mercury");
+            this.needleLeft.transform(-(0, utils_1.getMinMaxValue)(0, 120, p / 10 * 120), 0, 0, 0, 0);
+            var a = simvar_1.SimVar.GetSimVarValue("ELECTRICAL BATTERY BUS AMPS", "Amperes");
+            this.needleRight.transform(-(0, utils_1.getMinMaxValue)(0, 120, -a / 60 * 120 + 60), 0, 0, 0, 0);
+        }
+    }
+    exports.GaugeVacAmp = GaugeVacAmp;
+    customElements.define('gauge-vac-amp', GaugeVacAmp);
+    class GaugeTempPress extends svg_1.SVGImage {
+        initializeComponents() {
+            this.svgObject.style.width = "100%";
+            this.svgObject.style.height = "100%";
+            this.needleLeft = new svg_1.SVGElem(this, "needleLeft");
+            this.needleRight = new svg_1.SVGElem(this, "needleRight");
+            this.initialized = true;
+        }
+        update() {
+            var t = simvar_1.SimVar.GetSimVarValue("ENG OIL TEMPERATURE:1", "Fahrenheit");
+            this.needleLeft.transform(-(0, utils_1.getMinMaxValue)(0, 120, (t - 40) / 245 * 120), 0, 0, 0, 0);
+            var p = simvar_1.SimVar.GetSimVarValue("ENG OIL PRESSURE:1", "PSI");
+            this.needleRight.transform(-(0, utils_1.getMinMaxValue)(0, 120, p / 115 * 120), 0, 0, 0, 0);
+        }
+    }
+    exports.GaugeTempPress = GaugeTempPress;
+    customElements.define('gauge-temp-press', GaugeTempPress);
+});
+//# sourceMappingURL=gauges.js.map

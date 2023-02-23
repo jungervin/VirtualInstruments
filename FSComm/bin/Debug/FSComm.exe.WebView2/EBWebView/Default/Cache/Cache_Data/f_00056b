@@ -1,0 +1,356 @@
+define(["require", "exports", "./ATC", "./FSConn", "./settings", "./simplane", "./simvar", "./svg"], function (require, exports, ATC_1, FSConn_1, settings_1, simplane_1, simvar_1, svg_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.G1000_MFD = exports.G1000_PFD = void 0;
+    class G1000_Common extends svg_1.SVGImage {
+        initializeComponents() {
+            for (var i = 1; i <= 12; i++) {
+                var key = new svg_1.SVGTouchButton(this, "softkey" + i);
+                key.tag = { index: i };
+                if (key) {
+                    key.onMouseUp = ((sender, e) => {
+                        simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_SOFTKEYS_" + sender.tag.index, "number", 0);
+                    }).bind(this);
+                }
+            }
+            let rotNAVVol = new svg_1.SVGRotary(this, "rotNAVVol", "tapNAVVol", undefined);
+            rotNAVVol.onAngleChanged = (function (da) {
+                if (da < 0) {
+                }
+                else {
+                }
+            }).bind(this);
+            let rotCOMVol = new svg_1.SVGRotary(this, "rotCOMVol", "tapCOMVol", undefined);
+            rotNAVVol.onAngleChanged = (function (da) {
+                if (da < 0) {
+                }
+                else {
+                }
+            }).bind(this);
+            let btnNAVSwitch = new svg_1.SVGTouchButton(this, "btnNAVSwitch");
+            btnNAVSwitch.onMouseUp = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_NAV_Switch", "number", 0);
+            }).bind(this);
+            let btnCOMSwitch = new svg_1.SVGTouchButton(this, "btnCOMSwitch");
+            btnCOMSwitch.onMouseUp = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_COM_Switch", "number", 0);
+            }).bind(this);
+            this.btnAP = new svg_1.SVGTouchButtonLed(this, "btnAP", "ledAP");
+            this.btnAP.onMouseUp = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("K:AP_MASTER", "number", 0);
+            });
+            this.btnFD = new svg_1.SVGTouchButtonLed(this, "btnFD", "ledFD");
+            this.btnFD.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:TOGGLE_FLIGHT_DIRECTOR", "number", 0);
+            });
+            this.btnHDG = new svg_1.SVGTouchButtonLed(this, "btnHDG", "ledHDG");
+            this.btnHDG.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_HDG_HOLD", "number", 0);
+            });
+            this.btnALT = new svg_1.SVGTouchButtonLed(this, "btnALT", "ledALT");
+            this.btnALT.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_ALT_HOLD", "number", 0);
+            });
+            this.btnNAV = new svg_1.SVGTouchButtonLed(this, "btnNAV", "ledNAV");
+            this.btnNAV.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_NAV1_HOLD", "number", 0);
+            });
+            this.btnVNV = new svg_1.SVGTouchButtonLed(this, "btnVNV", "ledVNV");
+            this.btnVNV.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_VNV_HOLD", "number", 0);
+            });
+            this.btnAPR = new svg_1.SVGTouchButtonLed(this, "btnAPR", "ledAPR");
+            this.btnAPR.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_APR_HOLD", "number", 0);
+            });
+            this.btnBC = new svg_1.SVGTouchButtonLed(this, "btnBC", "ledBC");
+            this.btnBC.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_BC_HOLD", "number", 0);
+            });
+            this.btnVS = new svg_1.SVGTouchButtonLed(this, "btnVS", "ledVS");
+            this.btnVS.onMouseUp = (function (sender, e) {
+                simvar_1.SimVar.SetSimVarValue("K:AP_VS_HOLD", "number", 0);
+            });
+            this.btnFLC = new svg_1.SVGTouchButtonLed(this, "btnFLC", "ledFLC");
+            this.btnFLC.onMouseUp = (function (sender, e) {
+                var speed = simplane_1.Simplane.getIndicatedSpeed();
+                simvar_1.SimVar.SetSimVarValue("K:FLIGHT_LEVEL_CHANGE", "number", speed);
+                simvar_1.SimVar.SetSimVarValue("K:AP_SPD_VAR_SET", "number", speed);
+            });
+            let btnUP = new svg_1.SVGTouchButton(this, "btnUP");
+            btnUP.onMouseUp = ((sender, e) => {
+                var mode = simplane_1.Simplane.getAutoPilotFLCActive();
+                if (mode) {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_SPD_VAR_INC", "number", 0);
+                }
+                mode = simplane_1.Simplane.getAutoPilotVerticalSpeedHoldActive();
+                if (mode) {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_VS_VAR_INC", "number", 0);
+                }
+            }).bind(this);
+            let btnDN = new svg_1.SVGTouchButton(this, "btnDN");
+            btnDN.onMouseUp = ((sender, e) => {
+                var mode = simplane_1.Simplane.getAutoPilotFLCActive();
+                if (mode) {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_SPD_VAR_DEC", "number", 0);
+                }
+                mode = simplane_1.Simplane.getAutoPilotVerticalSpeedHoldActive();
+                if (mode) {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_VS_VAR_DEC", "number", 0);
+                }
+            }).bind(this);
+            let rotNAVOuter = new svg_1.SVGRotary(this, "rotNAVOuter", "tapNAVOuter", undefined);
+            rotNAVOuter.onAngleChanged = ((d) => {
+                if (d < 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_NAV_Large_DEC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_NAV_Large_INC", "number", 0);
+                }
+            }).bind(this);
+            let rotNAVInner = new svg_1.SVGRotary(this, "rotNAVInner", "tapNAVInner", rotNAVOuter);
+            rotNAVInner.onPush = (() => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_NAV_Push", "number", 0);
+            }).bind(this);
+            rotNAVInner.onAngleChanged = ((d) => {
+                if (d < 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_NAV_Small_DEC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_NAV_Small_INC", "number", 0);
+                }
+            }).bind(this);
+            let rotHDG = new svg_1.SVGRotary(this, "rotHDG", "tapHDG", undefined);
+            rotHDG.onPush = (() => {
+                simvar_1.SimVar.SetSimVarValue("K:HEADING_BUG_SET", "degree", this.PLANE_HEADING_DEGREES_MAGNETIC);
+            }).bind(this);
+            rotHDG.onAngleChanged = (function (da) {
+                if (da < 0) {
+                    simvar_1.SimVar.SetSimVarValue("K:HEADING_BUG_DEC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("K:HEADING_BUG_INC", "number", 0);
+                }
+            }).bind(this);
+            let rotALTOuter = new svg_1.SVGRotary(this, "rotALTOuter", "tapALTOuter", undefined);
+            rotALTOuter.onAngleChanged = (function (da) {
+                if (da < 0) {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_ALT_VAR_DEC", "number", 1000);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_ALT_VAR_INC", "number", 1000);
+                }
+            }).bind(this);
+            let rotALTInner = new svg_1.SVGRotary(this, "rotALTInner", "tapALTInner", rotALTOuter);
+            rotALTInner.onAngleChanged = (function (da) {
+                if (da < 0) {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_ALT_VAR_DEC", "number", 100);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("K:AP_ALT_VAR_INC", "number", 100);
+                }
+            }).bind(this);
+            let rotCOMOuter = new svg_1.SVGRotary(this, "rotCOMOuter", "tapCOMOuter", undefined);
+            rotCOMOuter.onAngleChanged = ((d) => {
+                if (d < 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_COM_Large_DEC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_COM_Large_INC", "number", 0);
+                }
+            }).bind(this);
+            let rotCOMInner = new svg_1.SVGRotary(this, "rotCOMInner", "tapCOMInner", rotCOMOuter);
+            rotCOMInner.onPush = (() => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_COM_Push", "number", 0);
+            }).bind(this);
+            rotCOMInner.onAngleChanged = ((d) => {
+                if (d < 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_COM_Small_DEC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_COM_Small_INC", "number", 0);
+                }
+            }).bind(this);
+            let rotCRSOuter = new svg_1.SVGRotary(this, "rotCRSOuter", "tapCRSOuter", undefined);
+            rotCRSOuter.onAngleChanged = (function (da) {
+                if (da > 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_BARO_INC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_BARO_DEC", "number", 0);
+                }
+            }).bind(this);
+            let rotCRSInner = new svg_1.SVGRotary(this, "rotCRSInner", "tapCRSInner", rotCRSOuter);
+            rotCRSInner.onPush = (function (da) {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_CRS_PUSH", "number", 0);
+            }).bind(this);
+            rotCRSInner.onAngleChanged = (function (da) {
+                if (da > 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_CRS_INC", "number", 0);
+                    if (da >= 10) {
+                        simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_CRS_INC", "number", 0);
+                    }
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_CRS_DEC", "number", 0);
+                    if (da <= -10) {
+                        simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_CRS_DEC", "number", 0);
+                    }
+                }
+            }).bind(this);
+            let rotRange = new svg_1.SVGRotary(this, "rotRNG", "tapRNG", undefined);
+            rotRange.onPush = (() => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_JOYSTICK_PUSH", "number", 0);
+            }).bind(this);
+            rotRange.onAngleChanged = (function (da) {
+                var bingCursor = simvar_1.SimVar.GetSimVarValue("L:" + this.bingId + "_MapShowCursor", "number");
+                console.log("Cursor:", bingCursor);
+                if (da > 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_RANGE_DEC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_RANGE_INC", "number", 0);
+                }
+            }).bind(this);
+            let btnRngN = new svg_1.SVGTouchButton(this, "btnRngN");
+            btnRngN.onMouseDown = ((e) => {
+                this.interval = setInterval(() => {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_JOYSTICK_UP", "number", 0);
+                }, 100);
+            }).bind(this);
+            btnRngN.onMouseUp = ((e) => {
+                if (this.interval != null) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+            }).bind(this);
+            let btnRngS = new svg_1.SVGTouchButton(this, "btnRngS");
+            btnRngS.onMouseDown = ((e) => {
+                this.interval = setInterval(() => {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_JOYSTICK_DOWN", "number", 0);
+                }, 100);
+            }).bind(this);
+            btnRngS.onMouseUp = ((e) => {
+                if (this.interval != null) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+            }).bind(this);
+            let btnRngW = new svg_1.SVGTouchButton(this, "btnRngW");
+            btnRngW.onMouseDown = ((e) => {
+                this.interval = setInterval(() => {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_JOYSTICK_LEFT", "number", 0);
+                }, 100);
+            }).bind(this);
+            btnRngW.onMouseUp = ((e) => {
+                if (this.interval != null) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+            }).bind(this);
+            let btnRngE = new svg_1.SVGTouchButton(this, "btnRngE");
+            btnRngE.onMouseDown = ((e) => {
+                this.interval = setInterval(() => {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_JOYSTICK_RIGHT", "number", 0);
+                }, 100);
+            }).bind(this);
+            btnRngE.onMouseUp = ((e) => {
+                if (this.interval != null) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+            }).bind(this);
+            let rotFMSOuter = new svg_1.SVGRotary(this, "rotFMSOuter", "tapFMSOuter", undefined);
+            rotFMSOuter.onAngleChanged = ((da) => {
+                if (da > 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_FMS_Lower_INC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_FMS_Lower_DEC", "number", 0);
+                }
+            }).bind(this);
+            let rotFMSInner = new svg_1.SVGRotary(this, "rotFMSInner", "tapFMSInner", rotFMSOuter);
+            rotFMSInner.onPush = (() => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_FMS_Upper_PUSH", "number", 0);
+            });
+            rotFMSInner.onAngleChanged = ((da) => {
+                if (da > 0) {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_FMS_Upper_INC", "number", 0);
+                }
+                else {
+                    simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_FMS_Upper_DEC", "number", 0);
+                }
+            }).bind(this);
+            let btnDIR = new svg_1.SVGTouchButton(this, "btnDIR");
+            btnDIR.onMouseDown = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_DIRECTTO", "number", 0);
+            }).bind(this);
+            let btnMENU = new svg_1.SVGTouchButton(this, "btnMENU");
+            btnMENU.onMouseDown = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_MENU_Push", "number", 0);
+            }).bind(this);
+            let btnFPL = new svg_1.SVGTouchButton(this, "btnFPL");
+            btnFPL.onMouseDown = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_FPL_Push", "number", 0);
+            }).bind(this);
+            let btnPROC = new svg_1.SVGTouchButton(this, "btnPROC");
+            btnPROC.onMouseDown = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_PROC_Push", "number", 0);
+            }).bind(this);
+            let btnCLR = new svg_1.SVGTouchButton(this, "btnCLR");
+            btnCLR.onMouseDown = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_CLR_Push", "number", 0);
+            }).bind(this);
+            let btnENT = new svg_1.SVGTouchButton(this, "btnENT");
+            btnENT.onMouseDown = ((sender, e) => {
+                simvar_1.SimVar.SetSimVarValue("H:" + this.fsConn.instrumentID + "_ENT_Push", "number", 0);
+            }).bind(this);
+            let btnATC = new svg_1.SVGTouchButton(this, "btnATC");
+            btnATC.onMouseUp = (function (sender, e) {
+                var _a;
+                var atc_panel = (_a = document.getElementById("ATC")) === null || _a === void 0 ? void 0 : _a.style;
+                if (atc_panel) {
+                    atc_panel.visibility = atc_panel.visibility == "visible" ? "hidden" : "visible";
+                }
+            }).bind(this);
+        }
+        update() {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            (_a = this.btnAP) === null || _a === void 0 ? void 0 : _a.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT MASTER", "bool"));
+            (_b = this.btnHDG) === null || _b === void 0 ? void 0 : _b.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT HEADING LOCK", "bool"));
+            (_c = this.btnALT) === null || _c === void 0 ? void 0 : _c.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT ALTITUDE LOCK", "bool"));
+            (_d = this.btnNAV) === null || _d === void 0 ? void 0 : _d.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT NAV1 LOCK", "bool"));
+            (_e = this.btnAPR) === null || _e === void 0 ? void 0 : _e.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT APPROACH HOLD", "bool"));
+            (_f = this.btnBC) === null || _f === void 0 ? void 0 : _f.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT BACKCOURSE HOLD", "bool"));
+            (_g = this.btnFD) === null || _g === void 0 ? void 0 : _g.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT FLIGHT DIRECTOR ACTIVE", "bool"));
+            (_h = this.btnBANK) === null || _h === void 0 ? void 0 : _h.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT BANK HOLD", "bool"));
+            (_j = this.btnVS) === null || _j === void 0 ? void 0 : _j.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT VERTICAL HOLD", "bool"));
+            (_k = this.btnFLC) === null || _k === void 0 ? void 0 : _k.setLed(simvar_1.SimVar.GetSimVarValue("AUTOPILOT FLIGHT LEVEL CHANGE", "bool"));
+            this.PLANE_HEADING_DEGREES_MAGNETIC = simvar_1.SimVar.GetSimVarValue("PLANE HEADING DEGREES MAGNETIC", "degree");
+        }
+    }
+    class G1000_PFD extends G1000_Common {
+        initializeComponents() {
+            super.initializeComponents();
+            this.svgObject.style.width = "100%";
+            this.fsConn = new FSConn_1.FSConn(settings_1.SETTINGS.WS_ADDR, "AS1000_PFD");
+            this.fsConn.onUpdate = this.update.bind(this);
+            this.ATC = new ATC_1.ATCPanel(this.fsConn);
+            this.fsConn.start();
+        }
+    }
+    exports.G1000_PFD = G1000_PFD;
+    customElements.define("g1000-pfd", G1000_PFD);
+    class G1000_MFD extends G1000_Common {
+        initializeComponents() {
+            super.initializeComponents();
+            this.fsConn = new FSConn_1.FSConn(settings_1.SETTINGS.WS_ADDR, "AS1000_MFD");
+            this.fsConn.onUpdate = this.update.bind(this);
+            this.ATC = new ATC_1.ATCPanel(this.fsConn);
+            this.fsConn.start();
+        }
+    }
+    exports.G1000_MFD = G1000_MFD;
+    customElements.define("g1000-mfd", G1000_MFD);
+});
+//# sourceMappingURL=g1000.js.map
